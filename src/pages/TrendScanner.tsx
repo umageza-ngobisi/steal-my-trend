@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Zap, Activity, Globe, Filter, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { mockTrends } from '../data/mockTrends';
@@ -9,9 +9,15 @@ const categories = ['all', 'fitness', 'beauty', 'gadgets', 'pets', 'home improve
 const TrendScanner: React.FC = () => {
   const [isScanning, setIsScanning] = useState(true);
   const [scanProgress, setScanProgress] = useState(0);
-  const [visibleTrends, setVisibleTrends] = useState<Trend[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [scanLogs, setScanLogs] = useState<string[]>([]);
+
+  const visibleTrends = useMemo(() => {
+    if (isScanning) return [];
+    return selectedCategory === 'all' 
+      ? mockTrends 
+      : mockTrends.filter(t => t.category === selectedCategory);
+  }, [isScanning, selectedCategory]);
 
   useEffect(() => {
     if (isScanning) {
@@ -55,20 +61,10 @@ const TrendScanner: React.FC = () => {
     }
   }, [isScanning]);
 
-  useEffect(() => {
-    if (!isScanning) {
-      const filtered = selectedCategory === 'all' 
-        ? mockTrends 
-        : mockTrends.filter(t => t.category === selectedCategory);
-      setVisibleTrends(filtered);
-    }
-  }, [isScanning, selectedCategory]);
-
   const handleRefresh = () => {
     setIsScanning(true);
     setScanProgress(0);
     setScanLogs([]);
-    setVisibleTrends([]);
   };
 
   return (
@@ -156,7 +152,7 @@ const TrendScanner: React.FC = () => {
             {isScanning && (
               <motion.span
                 animate={{ opacity: [0, 1, 0] }}
-                transition={{ repeat: Infinity, duration: 1 }}
+                transition={{ duration: 1, repeat: Infinity }}
                 className="inline-block w-2 h-4 bg-primary ml-1"
               />
             )}
@@ -290,4 +286,3 @@ const TrendScanner: React.FC = () => {
 };
 
 export default TrendScanner;
-

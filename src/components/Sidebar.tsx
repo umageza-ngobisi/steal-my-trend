@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { LucideIcon } from 'lucide-react';
 import { 
   Zap, 
   Search, 
@@ -20,7 +21,7 @@ const SidebarItem = ({
   href, 
   active 
 }: { 
-  icon: any, 
+  icon: LucideIcon, 
   label: string, 
   href: string, 
   active: boolean 

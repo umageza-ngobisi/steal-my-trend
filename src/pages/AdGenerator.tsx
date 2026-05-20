@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -25,14 +25,14 @@ const AdGenerator: React.FC = () => {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const [generationStep, setGenerationStep] = useState(0);
 
-  const steps = [
+  const steps = useMemo(() => [
     "Analyzing product features...",
     "Identifying target audience...",
     "Scanning TikTok trends...",
     "Generating hooks...",
     "Polishing ad scripts...",
     "Finalizing hashtags..."
-  ];
+  ], []);
 
   useEffect(() => {
     if (isGenerating) {
@@ -48,7 +48,7 @@ const AdGenerator: React.FC = () => {
       }, 600);
       return () => clearInterval(interval);
     }
-  }, [isGenerating]);
+  }, [isGenerating, steps.length]);
 
   const copyToClipboard = (text: string, section: string) => {
     navigator.clipboard.writeText(text);

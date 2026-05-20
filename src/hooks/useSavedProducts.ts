@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { Product } from '../lib/mockData';
 
 export const useSavedProducts = () => {
-  const [savedProducts, setSavedProducts] = useState<Product[]>([]);
-
-  useEffect(() => {
+  const [savedProducts, setSavedProducts] = useState<Product[]>(() => {
     const stored = localStorage.getItem('savedProducts');
     if (stored) {
       try {
-        setSavedProducts(JSON.parse(stored));
+        return JSON.parse(stored);
       } catch (e) {
         console.error('Failed to parse saved products', e);
+        return [];
       }
     }
-  }, []);
+    return [];
+  });
 
   const saveProduct = (product: Product) => {
     setSavedProducts((prev) => {

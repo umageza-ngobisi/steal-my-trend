@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -26,14 +26,14 @@ const StoreGenerator: React.FC = () => {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const [generationStep, setGenerationStep] = useState(0);
 
-  const steps = [
+  const steps = useMemo(() => [
     "Analyzing product specs...",
     "Extracting key benefits...",
     "Writing high-converting description...",
     "Formulating FAQ section...",
     "Optimizing for SEO...",
     "Finalizing store layout..."
-  ];
+  ], []);
 
   useEffect(() => {
     if (isGenerating) {
@@ -49,7 +49,7 @@ const StoreGenerator: React.FC = () => {
       }, 600);
       return () => clearInterval(interval);
     }
-  }, [isGenerating]);
+  }, [isGenerating, steps.length]);
 
   const copyToClipboard = (text: string, section: string) => {
     navigator.clipboard.writeText(text);
