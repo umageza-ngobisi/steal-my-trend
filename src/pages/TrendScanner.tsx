@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Zap, Activity, Globe, Filter, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { mockTrends } from '../data/mockTrends';
-import type { Trend } from '../data/mockTrends';
 
 const categories = ['all', 'fitness', 'beauty', 'gadgets', 'pets', 'home improvement', 'fashion'];
 
