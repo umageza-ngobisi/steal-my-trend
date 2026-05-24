@@ -34,7 +34,7 @@ const Signup: React.FC = () => {
       
       {/* Grid Pattern Overlay */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
-
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -61,7 +61,7 @@ const Signup: React.FC = () => {
         <div className="glass-card rounded-[2.5rem] p-8 md:p-10 shadow-2xl border-white/5 relative overflow-hidden">
           {/* Subtle inner glow */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
-
+          
           {error && (
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
@@ -90,6 +90,7 @@ const Signup: React.FC = () => {
                 />
               </div>
             </div>
+
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Email Address</label>
               <div className="group relative">
@@ -106,6 +107,7 @@ const Signup: React.FC = () => {
                 />
               </div>
             </div>
+
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Password</label>
               <div className="group relative">
@@ -122,6 +124,7 @@ const Signup: React.FC = () => {
                 />
               </div>
             </div>
+
             <button
               type="submit"
               disabled={isLoading}
@@ -142,6 +145,7 @@ const Signup: React.FC = () => {
             </button>
           </form>
         </div>
+
         <p className="text-center text-sm text-muted-foreground pb-10">
           Already have an account?{' '}
           <Link to="/login" className="text-primary font-bold hover:text-primary-lime transition-colors">Sign in</Link>
