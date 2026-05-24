@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Zap, Mail, Lock, ArrowRight, User as UserIcon, Sparkles, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, ArrowRight, User as UserIcon, Sparkles, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
-  const { signUp, signInWithOAuth } = useAuth();
+  const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
@@ -19,24 +19,9 @@ const Signup: React.FC = () => {
     setError(null);
     try {
       await signUp(email, password, fullName);
-      // Usually signUp might require email verification, but for now we navigate or show success
-      // If Supabase is configured for auto-confirm, they are logged in.
-      // For now, let's assume they need to check email or it's handled.
-      // The fullstack engineer's refactor might change this behavior.
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
-      setIsLoading(false);
-    }
-  };
-
-  const handleOAuthLogin = async (provider: 'google' | 'github') => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      await signInWithOAuth(provider);
-    } catch (err: any) {
-      setError(err.message || `Failed to sign in with ${provider}`);
       setIsLoading(false);
     }
   };
@@ -156,34 +141,6 @@ const Signup: React.FC = () => {
               )}
             </button>
           </form>
-
-          <div className="mt-8 relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10"></div>
-            </div>
-            <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
-              <span className="bg-[#0a0a0a] px-4 text-muted-foreground">Or continue with</span>
-            </div>
-          </div>
-
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <button
-              onClick={() => handleOAuthLogin('google')}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-xs font-bold text-white disabled:opacity-50"
-            >
-               <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4" alt="Google" />
-               Google
-            </button>
-            <button
-              onClick={() => handleOAuthLogin('github')}
-              disabled={isLoading}
-              className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-xs font-bold text-white disabled:opacity-50"
-            >
-               <Github className="text-white" size={16} />
-               GitHub
-            </button>
-          </div>
         </div>
         <p className="text-center text-sm text-muted-foreground pb-10">
           Already have an account?{' '}

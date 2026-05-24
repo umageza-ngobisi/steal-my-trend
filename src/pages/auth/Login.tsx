@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, ArrowRight, Sparkles, Wand2, CheckCircle2, ShieldCheck, Github } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Sparkles, Wand2, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { signIn, signInWithOtp, signInWithOAuth } = useAuth();
+  const { signIn, signInWithOtp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
@@ -40,17 +40,6 @@ const Login: React.FC = () => {
       setIsSent(true);
     } catch (err: any) {
       setError(err.message || 'Failed to send magic link.');
-      setIsLoading(false);
-    }
-  };
-
-  const handleOAuthLogin = async (provider: 'google' | 'github') => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      await signInWithOAuth(provider);
-    } catch (err: any) {
-      setError(err.message || `Failed to sign in with ${provider}`);
       setIsLoading(false);
     }
   };
@@ -252,34 +241,6 @@ const Login: React.FC = () => {
                     )}
                   </button>
                 </form>
-
-                <div className="mt-8 relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10"></div>
-                  </div>
-                  <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
-                    <span className="bg-[#0a0a0a] px-4 text-muted-foreground">Or continue with</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 grid grid-cols-2 gap-4">
-                  <button
-                    onClick={() => handleOAuthLogin('google')}
-                    disabled={isLoading}
-                    className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-xs font-bold text-white disabled:opacity-50"
-                  >
-                     <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4" alt="Google" />
-                     Google
-                  </button>
-                  <button
-                    onClick={() => handleOAuthLogin('github')}
-                    disabled={isLoading}
-                    className="flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-xs font-bold text-white disabled:opacity-50"
-                  >
-                     <Github size={16} className="text-white" />
-                     GitHub
-                  </button>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
