@@ -1,13 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import DashboardLayout from '../components/DashboardLayout';
 import ProductCard from '../components/ProductCard';
 import AnalyticsSection from '../components/AnalyticsSection';
-import { MOCK_PRODUCTS } from '../lib/mockData';
 import type { Product } from '../lib/mockData';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, HeartOff, Sparkles, TrendingUp } from 'lucide-react';
+import { Search, SlidersHorizontal, HeartOff, Sparkles, TrendingUp, Loader2 } from 'lucide-react';
 import { useSavedProducts } from '../hooks/useSavedProducts';
+import { useProducts } from '../hooks/useProducts';
 import TrendScanner from './TrendScanner';
 import AdGenerator from './AdGenerator';
 import StoreGenerator from './StoreGenerator';
@@ -15,15 +15,9 @@ import StoreGenerator from './StoreGenerator';
 const Overview = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('All Platforms');
+  
+  const { products, loading, error } = useProducts(undefined, selectedPlatform, searchQuery);
   const { isSaved, saveProduct, unsaveProduct } = useSavedProducts();
-
-  const filteredProducts = useMemo(() => {
-    return MOCK_PRODUCTS.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesPlatform = selectedPlatform === 'All Platforms' || product.platform === selectedPlatform;
-      return matchesSearch && matchesPlatform;
-    });
-  }, [searchQuery, selectedPlatform]);
 
   const handleSaveToggle = (product: Product) => {
     if (isSaved(product.id)) {
@@ -94,9 +88,19 @@ const Overview = () => {
         </div>
 
         {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 size={40} className="text-primary animate-spin mb-4" />
+            <p className="text-muted-foreground">Scanning for viral products...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <p className="text-red-400 mb-2">Error loading products</p>
+            <p className="text-muted-foreground text-sm">{error}</p>
+          </div>
+        ) : products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product, i) => (
+            {products.map((product, i) => (
               <ProductCard 
                 key={product.id} 
                 product={product} 
@@ -129,15 +133,13 @@ const Overview = () => {
 const SavedProducts = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPlatform, setSelectedPlatform] = useState('All Platforms');
-  const { savedProducts, unsaveProduct } = useSavedProducts();
+  const { savedProducts, unsaveProduct, loading } = useSavedProducts();
 
-  const filteredProducts = useMemo(() => {
-    return savedProducts.filter(product => {
-      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesPlatform = selectedPlatform === 'All Platforms' || product.platform === selectedPlatform;
-      return matchesSearch && matchesPlatform;
-    });
-  }, [savedProducts, searchQuery, selectedPlatform]);
+  const filteredProducts = savedProducts.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPlatform = selectedPlatform === 'All Platforms' || product.platform === selectedPlatform;
+    return matchesSearch && matchesPlatform;
+  });
 
   return (
     <div className="space-y-6">
@@ -177,7 +179,12 @@ const SavedProducts = () => {
       </div>
 
       {/* Product Grid */}
-      {filteredProducts.length > 0 ? (
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20">
+          <Loader2 size={40} className="text-primary animate-spin mb-4" />
+          <p className="text-muted-foreground">Loading saved products...</p>
+        </div>
+      ) : filteredProducts.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <AnimatePresence>
             {filteredProducts.map((product, i) => (

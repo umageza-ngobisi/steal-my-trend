@@ -14,6 +14,7 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import UserProfile from './UserProfile';
+import { useAuth } from '../hooks/useAuth';
 
 const SidebarItem = ({ 
   icon: Icon, 
@@ -58,6 +59,7 @@ const SidebarItem = ({
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const menuItems = [
     { icon: Search, label: 'Discovery', href: '/dashboard' },
@@ -67,8 +69,8 @@ const Sidebar = () => {
     { icon: Store, label: 'Store Page Gen', href: '/dashboard/store-generator' },
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
+  const handleLogout = async () => {
+    await signOut();
     navigate('/login');
   };
 

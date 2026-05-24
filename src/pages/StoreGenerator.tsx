@@ -11,16 +11,17 @@ import {
   ShoppingCart,
   ListChecks,
   HelpCircle,
-  Search as SearchIcon
+  Search as SearchIcon,
+  Loader2
 } from 'lucide-react';
-import { MOCK_PRODUCTS } from '../lib/mockData';
+import { useProduct } from '../hooks/useProduct';
 
 const StoreGenerator: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const productId = searchParams.get('productId');
   
-  const product = MOCK_PRODUCTS.find(p => p.id === productId) || MOCK_PRODUCTS[0];
+  const { product, loading: productLoading } = useProduct(productId);
   
   const [isGenerating, setIsGenerating] = useState(true);
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
@@ -57,29 +58,50 @@ const StoreGenerator: React.FC = () => {
     setTimeout(() => setCopiedSection(null), 2000);
   };
 
-  const storeData = {
-    description: `Transform your space with the ${product.name}. Designed with both function and style in mind, this viral ${product.category.toLowerCase()} essential is perfect for anyone looking to upgrade their daily routine. Whether you're at home or on the go, the ${product.name} delivers consistent results every time.`,
-    benefits: [
-      "Effortless Integration: Fits perfectly into your modern lifestyle.",
-      "Premium Quality: Built with durable, high-end materials that last.",
-      "Viral Design: As seen on TikTok and Instagram - get the aesthetic everyone is talking about.",
-      "Eco-Friendly: Sustainable manufacturing process you can feel good about."
-    ],
-    features: [
-      "Intuitive one-touch operation",
-      "Sleek, minimalist design",
-      "Universal compatibility",
-      "Long-lasting battery life (where applicable)"
-    ],
-    faq: [
-      { q: `Is the ${product.name} easy to use?`, a: "Absolutely! We designed it to be user-friendly right out of the box." },
-      { q: "How long does shipping take?", a: "Most orders arrive within 5-10 business days depending on your location." }
-    ],
-    seo: {
-      title: `${product.name} | The Ultimate ${product.category} Upgrade`,
-      description: `Buy the viral ${product.name} today. Free shipping on all orders. Discover why this ${product.category.toLowerCase()} essential is taking social media by storm.`
-    }
-  };
+  const storeData = useMemo(() => {
+    if (!product) return null;
+    return {
+      description: `Transform your space with the ${product.name}. Designed with both function and style in mind, this viral ${product.category.toLowerCase()} essential is perfect for anyone looking to upgrade their daily routine. Whether you're at home or on the go, the ${product.name} delivers consistent results every time.`,
+      benefits: [
+        "Effortless Integration: Fits perfectly into your modern lifestyle.",
+        "Premium Quality: Built with durable, high-end materials that last.",
+        "Viral Design: As seen on TikTok and Instagram - get the aesthetic everyone is talking about.",
+        "Eco-Friendly: Sustainable manufacturing process you can feel good about."
+      ],
+      features: [
+        "Intuitive one-touch operation",
+        "Sleek, minimalist design",
+        "Universal compatibility",
+        "Long-lasting battery life (where applicable)"
+      ],
+      faq: [
+        { q: `Is the ${product.name} easy to use?`, a: "Absolutely! We designed it to be user-friendly right out of the box." },
+        { q: "How long does shipping take?", a: "Most orders arrive within 5-10 business days depending on your location." }
+      ],
+      seo: {
+        title: `${product.name} | The Ultimate ${product.category} Upgrade`,
+        description: `Buy the viral ${product.name} today. Free shipping on all orders. Discover why this ${product.category.toLowerCase()} essential is taking social media by storm.`
+      }
+    };
+  }, [product]);
+
+  if (productLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 min-h-[500px]">
+        <Loader2 size={40} className="text-primary animate-spin mb-4" />
+        <p className="text-muted-foreground">Loading product data...</p>
+      </div>
+    );
+  }
+
+  if (!product || !storeData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center min-h-[500px]">
+        <p className="text-red-400 mb-4">Product not found</p>
+        <button onClick={() => navigate('/dashboard')} className="text-primary hover:underline font-bold">Back to Dashboard</button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">

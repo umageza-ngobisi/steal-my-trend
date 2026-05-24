@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Zap, Activity, Globe, Filter, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
-import { mockTrends } from '../data/mockTrends';
+import { useTrends } from '../hooks/useTrends';
 
 const categories = ['all', 'fitness', 'beauty', 'gadgets', 'pets', 'home improvement', 'fashion'];
 
@@ -10,13 +10,13 @@ const TrendScanner: React.FC = () => {
   const [scanProgress, setScanProgress] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [scanLogs, setScanLogs] = useState<string[]>([]);
+  
+  const { trends } = useTrends(selectedCategory === 'all' ? undefined : selectedCategory);
 
   const visibleTrends = useMemo(() => {
     if (isScanning) return [];
-    return selectedCategory === 'all' 
-      ? mockTrends 
-      : mockTrends.filter(t => t.category === selectedCategory);
-  }, [isScanning, selectedCategory]);
+    return trends;
+  }, [isScanning, trends]);
 
   useEffect(() => {
     if (isScanning) {

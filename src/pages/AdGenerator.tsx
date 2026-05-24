@@ -10,16 +10,17 @@ import {
   Video, 
   Hash, 
   ArrowLeft,
-  RefreshCw
+  RefreshCw,
+  Loader2
 } from 'lucide-react';
-import { MOCK_PRODUCTS } from '../lib/mockData';
+import { useProduct } from '../hooks/useProduct';
 
 const AdGenerator: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const productId = searchParams.get('productId');
   
-  const product = MOCK_PRODUCTS.find(p => p.id === productId) || MOCK_PRODUCTS[0];
+  const { product, loading: productLoading } = useProduct(productId);
   
   const [isGenerating, setIsGenerating] = useState(true);
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
@@ -56,21 +57,42 @@ const AdGenerator: React.FC = () => {
     setTimeout(() => setCopiedSection(null), 2000);
   };
 
-  const adData = {
-    hooks: [
-      `Stop scrolling! This ${product.name} is a total game changer. 😱`,
-      `I wish I found this ${product.name} sooner... honestly.`,
-      `TikTok made me buy it: ${product.name} edition! ✨`,
-      `Pov: You just discovered the secret to a perfect ${product.category.toLowerCase()}.`
-    ],
-    script: `[Scene 1: Hook - Close up of product]\n"I honestly didn't think I needed a ${product.name} until I tried it."\n\n[Scene 2: Demonstration]\n"Just look at how it works. It's so seamless and honestly aesthetic too."\n\n[Scene 3: Benefit]\n"It literally saves me so much time every single day. If you're into ${product.category.toLowerCase()}, you NEED this."\n\n[Scene 4: CTA]\n"Link in bio to grab yours while they're still in stock! 🚀"`,
-    captions: [
-      `The product you didn't know you needed until now. 😍 #viral #musthave`,
-      `Upgrade your life with the ${product.name}. You won't regret it!`,
-      `Don't walk, RUN to get this. 🏃‍♂️💨`
-    ],
-    hashtags: `#${product.name.replace(/\s+/g, '')} #${product.category.replace(/\s+/g, '')} #tiktokmademebuyit #dropshipping #viralproduct #ecommerce`
-  };
+  const adData = useMemo(() => {
+    if (!product) return null;
+    return {
+      hooks: [
+        `Stop scrolling! This ${product.name} is a total game changer. 😱`,
+        `I wish I found this ${product.name} sooner... honestly.`,
+        `TikTok made me buy it: ${product.name} edition! ✨`,
+        `Pov: You just discovered the secret to a perfect ${product.category.toLowerCase()}.`
+      ],
+      script: `[Scene 1: Hook - Close up of product]\n"I honestly didn't think I needed a ${product.name} until I tried it."\n\n[Scene 2: Demonstration]\n"Just look at how it works. It's so seamless and honestly aesthetic too."\n\n[Scene 3: Benefit]\n"It literally saves me so much time every single day. If you're into ${product.category.toLowerCase()}, you NEED this."\n\n[Scene 4: CTA]\n"Link in bio to grab yours while they're still in stock! 🚀"`,
+      captions: [
+        `The product you didn't know you needed until now. 😍 #viral #musthave`,
+        `Upgrade your life with the ${product.name}. You won't regret it!`,
+        `Don't walk, RUN to get this. 🏃‍♂️💨`
+      ],
+      hashtags: `#${product.name.replace(/\s+/g, '')} #${product.category.replace(/\s+/g, '')} #tiktokmademebuyit #dropshipping #viralproduct #ecommerce`
+    };
+  }, [product]);
+
+  if (productLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 min-h-[500px]">
+        <Loader2 size={40} className="text-primary animate-spin mb-4" />
+        <p className="text-muted-foreground">Loading product data...</p>
+      </div>
+    );
+  }
+
+  if (!product || !adData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center min-h-[500px]">
+        <p className="text-red-400 mb-4">Product not found</p>
+        <button onClick={() => navigate('/dashboard')} className="text-primary hover:underline font-bold">Back to Dashboard</button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
