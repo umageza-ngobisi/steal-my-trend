@@ -2,6 +2,35 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Session, User } from '@supabase/supabase-js';
 
+const isSupabaseConfigured = Boolean(
+  import.meta.env.VITE_SUPABASE_URL && 
+  import.meta.env.VITE_SUPABASE_ANON_KEY &&
+  import.meta.env.VITE_SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+  import.meta.env.VITE_SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY'
+);
+
+const MOCK_USER: User = {
+  id: 'mock-user-id',
+  email: 'demo@stealmytrend.com',
+  user_metadata: {
+    full_name: 'Demo User',
+    avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100'
+  },
+  aud: 'authenticated',
+  role: 'authenticated',
+  created_at: new Date().toISOString(),
+  app_metadata: {},
+} as any;
+
+const MOCK_SESSION: Session = {
+  access_token: 'mock-token',
+  refresh_token: 'mock-refresh',
+  expires_in: 3600,
+  expires_at: Math.floor(Date.now() / 1000) + 3600,
+  user: MOCK_USER,
+  token_type: 'bearer',
+};
+
 interface AuthContextType {
   session: Session | null;
   user: User | null;
@@ -21,6 +50,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      const mockSession = localStorage.getItem('mock_session');
+      if (mockSession === 'true') {
+        setSession(MOCK_SESSION);
+        setUser(MOCK_USER);
+      }
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -41,10 +80,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signOut = async () => {
+    if (!isSupabaseConfigured) {
+      localStorage.removeItem('mock_session');
+      setSession(null);
+      setUser(null);
+      return;
+    }
     await supabase.auth.signOut();
   };
 
   const signInWithOAuth = async (provider: 'google' | 'github') => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem('mock_session', 'true');
+      setSession(MOCK_SESSION);
+      setUser(MOCK_USER);
+      return;
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -55,6 +106,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithOtp = async (email: string) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem('mock_session', 'true');
+      setSession(MOCK_SESSION);
+      setUser(MOCK_USER);
+      return;
+    }
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -65,6 +122,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem('mock_session', 'true');
+      setSession(MOCK_SESSION);
+      setUser({ ...MOCK_USER, email, user_metadata: { ...MOCK_USER.user_metadata, full_name: fullName } });
+      return;
+    }
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -79,6 +142,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem('mock_session', 'true');
+      setSession(MOCK_SESSION);
+      setUser(MOCK_USER);
+      return;
+    }
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,

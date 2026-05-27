@@ -44,6 +44,18 @@ const Login: React.FC = () => {
     }
   };
 
+  const isSupabaseConfigured = Boolean(
+    import.meta.env.VITE_SUPABASE_URL && 
+    import.meta.env.VITE_SUPABASE_ANON_KEY &&
+    import.meta.env.VITE_SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+    import.meta.env.VITE_SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY'
+  );
+
+  const handleMockSignIn = () => {
+    signIn('demo@example.com', 'password');
+    navigate('/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Futuristic Background Elements */}
@@ -79,6 +91,13 @@ const Login: React.FC = () => {
         <div className="glass-card rounded-[2.5rem] p-8 md:p-10 shadow-2xl border-white/5 relative overflow-hidden">
           {/* Subtle inner glow */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
+          
+          {!isSupabaseConfigured && (
+            <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-xs font-medium flex items-center gap-3">
+              <Sparkles size={18} className="shrink-0" />
+              <p>Supabase is not configured. Use <b>Mock Sign In</b> to explore the dashboard.</p>
+            </div>
+          )}
           
           <AnimatePresence mode="wait">
             {isSent ? (
@@ -240,6 +259,28 @@ const Login: React.FC = () => {
                       </>
                     )}
                   </button>
+                  
+                  {!isSupabaseConfigured && (
+                    <>
+                      <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-white/10"></div>
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-card px-2 text-muted-foreground">Demo Mode</span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleMockSignIn}
+                        className="w-full py-4 rounded-2xl border border-white/10 text-white font-bold hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Sparkles size={18} className="text-primary" />
+                        Mock Sign In
+                      </button>
+                    </>
+                  )}
                 </form>
               </motion.div>
             )}

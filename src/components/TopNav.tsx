@@ -52,10 +52,10 @@ const TopNav = () => {
           >
             <UserProfile showDetails={false} />
             <div className="text-right hidden sm:block">
-              <p className="text-xs font-bold group-hover:text-primary transition-colors">
-                {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Alex Hunter'}
+              <p className="text-xs font-bold group-hover:text-primary transition-colors text-white">
+                {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Guest User'}
               </p>
-              <p className="text-[10px] text-muted">Pro Plan</p>
+              <p className="text-[10px] text-muted-foreground">Pro Plan</p>
             </div>
           </div>
 
@@ -68,10 +68,10 @@ const TopNav = () => {
                 className="absolute right-0 mt-4 w-56 bg-card border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 p-2"
               >
                 <div className="px-4 py-3 border-b border-white/5 mb-1">
-                  <p className="text-sm font-bold">
-                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Alex Hunter'}
+                  <p className="text-sm font-bold text-white">
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Guest User'}
                   </p>
-                  <p className="text-[10px] text-muted">{user?.email || 'alex@example.com'}</p>
+                  <p className="text-[10px] text-muted-foreground">{user?.email || 'guest@example.com'}</p>
                 </div>
                 
                 <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-muted hover:text-white hover:bg-white/5 rounded-xl transition-all">

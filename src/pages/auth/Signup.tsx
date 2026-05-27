@@ -26,6 +26,18 @@ const Signup: React.FC = () => {
     }
   };
 
+  const isSupabaseConfigured = Boolean(
+    import.meta.env.VITE_SUPABASE_URL && 
+    import.meta.env.VITE_SUPABASE_ANON_KEY &&
+    import.meta.env.VITE_SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+    import.meta.env.VITE_SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY'
+  );
+
+  const handleMockSignup = () => {
+    signUp('demo@example.com', 'password', 'Demo User');
+    navigate('/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
       {/* Futuristic Background Elements */}
@@ -62,6 +74,13 @@ const Signup: React.FC = () => {
           {/* Subtle inner glow */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50" />
           
+          {!isSupabaseConfigured && (
+            <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20 text-primary text-xs font-medium flex items-center gap-3">
+              <Sparkles size={18} className="shrink-0" />
+              <p>Supabase is not configured. Use <b>Mock Create Account</b> to explore the dashboard.</p>
+            </div>
+          )}
+
           {error && (
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
@@ -143,6 +162,17 @@ const Signup: React.FC = () => {
                 </>
               )}
             </button>
+
+            {!isSupabaseConfigured && (
+              <button
+                type="button"
+                onClick={handleMockSignup}
+                className="w-full mt-4 py-4 rounded-2xl border border-white/10 text-white font-bold hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+              >
+                <Sparkles size={18} className="text-primary" />
+                Mock Create Account
+              </button>
+            )}
           </form>
         </div>
 

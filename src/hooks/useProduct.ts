@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import type { Product } from '../lib/mockData';
+import { MOCK_PRODUCTS, type Product } from '../lib/mockData';
+
+const isSupabaseConfigured = Boolean(
+  import.meta.env.VITE_SUPABASE_URL && 
+  import.meta.env.VITE_SUPABASE_ANON_KEY &&
+  import.meta.env.VITE_SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+  import.meta.env.VITE_SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY'
+);
 
 export const useProduct = (productId: string | null) => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -16,13 +22,20 @@ export const useProduct = (productId: string | null) => {
 
       try {
         setLoading(true);
-        const { data: p, error } = await supabase
+
+        if (!isSupabaseConfigured) {
+          const mock = MOCK_PRODUCTS.find(p => p.id === productId);
+          setProduct(mock || null);
+          return;
+        }
+
+        const { data: p, error: supabaseError } = await supabase
           .from('products')
           .select('*')
           .eq('id', productId)
           .single();
 
-        if (error) throw error;
+        if (supabaseError) throw supabaseError;
 
         if (p) {
           const mappedProduct: Product = {
@@ -40,10 +53,15 @@ export const useProduct = (productId: string | null) => {
             category: p.category || '',
           };
           setProduct(mappedProduct);
+        } else {
+          // Try fallback if not found in DB
+          const mock = MOCK_PRODUCTS.find(p => p.id === productId);
+          setProduct(mock || null);
         }
       } catch (err: any) {
-        console.error('Error fetching product:', err);
-        setError(err.message);
+        console.error('Error fetching product from Supabase, falling back to mock data:', err);
+        const mock = MOCK_PRODUCTS.find(p => p.id === productId);
+        setProduct(mock || null);
       } finally {
         setLoading(false);
       }
@@ -52,5 +70,5 @@ export const useProduct = (productId: string | null) => {
     fetchProduct();
   }, [productId]);
 
-  return { product, loading, error };
+  return { product, loading, error: null };
 };

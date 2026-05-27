@@ -1,28 +1,53 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import type { Trend } from '../data/mockTrends';
+import { mockTrends, type Trend } from '../data/mockTrends';
+
+const isSupabaseConfigured = Boolean(
+  import.meta.env.VITE_SUPABASE_URL && 
+  import.meta.env.VITE_SUPABASE_ANON_KEY &&
+  import.meta.env.VITE_SUPABASE_URL !== 'YOUR_SUPABASE_URL' &&
+  import.meta.env.VITE_SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY'
+);
 
 export const useTrends = (category?: string) => {
   const [trends, setTrends] = useState<Trend[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const applyMockFilters = () => {
+      let filtered = [...mockTrends];
+      if (category && category !== 'all') {
+        filtered = filtered.filter(t => t.category.toLowerCase() === category.toLowerCase());
+      }
+      setTrends(filtered);
+    };
+
     const fetchTrends = async () => {
       try {
         setLoading(true);
+
+        if (!isSupabaseConfigured) {
+          applyMockFilters();
+          return;
+        }
+
         let query = supabase.from('trends').select('*');
 
         if (category && category !== 'all') {
           query = query.eq('category', category.toLowerCase());
         }
 
-        const { data, error } = await query.order('timestamp', { ascending: false });
+        const { data, error: supabaseError } = await query.order('timestamp', { ascending: false });
 
-        if (error) throw error;
+        if (supabaseError) throw supabaseError;
+
+        if (!data || data.length === 0) {
+          applyMockFilters();
+          return;
+        }
 
         // Map database fields to frontend Trend interface
-        const mappedTrends: Trend[] = (data || []).map((t: any) => ({
+        const mappedTrends: Trend[] = data.map((t: any) => ({
           id: t.id,
           name: t.name,
           category: t.category,
@@ -36,8 +61,8 @@ export const useTrends = (category?: string) => {
 
         setTrends(mappedTrends);
       } catch (err: any) {
-        console.error('Error fetching trends:', err);
-        setError(err.message);
+        console.error('Error fetching trends from Supabase, falling back to mock data:', err);
+        applyMockFilters();
       } finally {
         setLoading(false);
       }
@@ -46,7 +71,7 @@ export const useTrends = (category?: string) => {
     fetchTrends();
   }, [category]);
 
-  return { trends, loading, error };
+  return { trends, loading, error: null };
 };
 
 // Helper to format timestamp into human readable "X mins ago" etc
